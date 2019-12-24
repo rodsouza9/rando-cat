@@ -1,86 +1,57 @@
 import React from 'react';
-import ReactDOM from "react-dom";
-import Request from 'react-http-request';
-import logo from './logo.svg';
 import './App.css';
 
 function App() {
-
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <Cat />
-        <Image src="https://images.pexels.com/photos/20787/pexels-photo.jpg?auto=compress&cs=tinysrgb&h=350"/>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <Cat/>
       </header>
     </div>
   );
 }
 
-class Cat extends React.Component{
+class Cat extends React.Component {
+  STATE_LOADING = "loading";
+  STATE_SUCCEEDED = "succeeded";
+  STATE_FAILED = "failed";
+
   constructor() {
     super();
     this.state = {
-      url: "ROAN",
+      src: "",
+      fetch_state: this.STATE_LOADING,
     };
-  }
-  fetchUrl() {
-
+    this.loadImage();
   }
 
-  render () {
-    return(
-      <Request
-        url='https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cat'
-        method='get'
-        accept='application/json'
-        verbose={true}
-      >
-        {
-          ({error, result, loading}) => {
-            if (loading) {
-              return <div>loading...</div>;
-            }
-            else if (error) {return <div>eRROR...</div>}
-            else {
-              this.state.url = result.body.data.images.original.url;
-              return (
-                <div>
-                  {JSON.stringify(result.body.data.images.original.url) }
-                  <p>{this.state.url}</p>
-                  <Image src={this.state.url}/>
-                </div>
-              );
-            }
-          }
-        }
-      </Request>
-    );
+  async loadImage() {
+    this.setState({fetch_state: this.STATE_LOADING,});
+    const response = await fetch('https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cat');
+    const myJson = await response.json();
+    console.log(myJson);
+    if (!myJson.data || !myJson.data.image_url) {
+      this.setState({
+        src: "https://docs.microsoft.com/en-us/windows/win32/uxguide/images/mess-error-image4.png",
+        fetch_state: this.STATE_FAILED,
+      });
+    } else {
+      this.setState({
+        src: myJson.data.image_url,
+        fetch_state: this.STATE_SUCCEEDED,
+      });
+    }
   }
-}
 
-class Image extends React.Component {
   render() {
     return (
-      <img
-      src={this.props.src}
-      alt="new"
-      />
+      <div>
+        <div>{this.state.fetch_state}</div>
+        <img src={this.state.src} />
+        <button onClick={this.loadImage.bind(this)}>Get Cat</button>
+      </div>
     );
   }
 }
-
-
 
 export default App;
