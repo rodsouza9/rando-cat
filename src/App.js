@@ -26,7 +26,10 @@ class Cat extends React.Component {
   }
 
   async loadImage() {
-    this.setState({fetch_state: this.STATE_LOADING,});
+    this.setState({
+      src: "https://media.giphy.com/media/N256GFy1u6M6Y/giphy.gif",
+      fetch_state: this.STATE_LOADING,
+    });
     const response = await fetch('https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cat');
     const myJson = await response.json();
     console.log(myJson);
@@ -46,9 +49,9 @@ class Cat extends React.Component {
   render() {
     return (
       <div>
-        <div>{this.state.fetch_state}</div>
+        <p>{this.state.fetch_state}</p>
         <img src={this.state.src} />
-        <button onClick={this.loadImage.bind(this)}>Get Cat</button>
+        <div><button onClick={this.loadImage.bind(this)}>Get Cat</button></div>
       </div>
     );
   }
